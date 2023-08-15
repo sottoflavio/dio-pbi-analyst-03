@@ -1,85 +1,56 @@
+##Etapa 1 – Criação da Instância Azure DB
+Para assegurar a persistência dos dados da base de dados "Company", foi provisionado o banco de dados "desafio-projeto-company" na plataforma Azure. Subsequentemente, o certificado SSL foi baixado para possibilitar a conexão com o MySQL Workbench. Por fim, estabeleceu-se uma ligação entre a Azure e o Power BI, permitindo a recolha dos dados.
 
-## Passo 01 – Criação da instância Azure DB
-
-Para persistir os dados do BD “Company”, foi instanciado o banco de dados “desafio-projeto-company” na plataforma Azure. Em seguida, foi baixado o certificado SSL para uso de conexão com o MySQL Workbench, e por fim, estabelecida conexão da Azure com o Power BI e coleta dos dados.
-
-
-## Passo 02 – Formatando os Dados
-
-_Tabela company departament_
-
-  - Remoção das colunas: company.dept_locations, company.employee e company.project;
-  - Formatação da coluna Dnumber de número para texto, por tratar-se de uma chave.
-
-_Tabela company dependent_
-
-  - Remoção da coluna: company.employee;
-  - Substituição de valores da coluna “Sex” de M = “Male” e F = “Female”.
-
-_Tabela company dept_location_
-
-  - Remoção da coluna: company.departament;
-  - Formatação da coluna Dnumber de número para texto, por tratar-se de uma chave.
-  
-_Tabela company employee_
-
-  - Remoção das colunas: company.departament, company.dependent, company.employee(Ssn), company.employee(Super_ssn) e company.works_on;
-  - Formatação da coluna Dno de número para texto, por tratar-se de um chave;
-  - Substituição de valores da coluna “Sex” de M = “Male” e F = “Female”;
-  - Colunas Fname, Minit e Lname, mescladas pelo delimitador “espaço” para uma única coluna “Nome completo”.
-
-_Tabela company project_
-
-  - Remoção das colunas: company.departament e company.works_on;
-  - Formatação das colunas Dnum e Pnumber de número para texto, por tratar-se de uma chave.
-
-_Tabela company works_on_
-
-  - Remoção das colunas: company.employee e company.project;
-  - Formatação da coluna Pno de número para texto, por tratar-se de uma chave.
-
-## Passo 03 – Transformando Tabelas
-
-_Tabela company employee_
-
-Coluna “Super_ssn” possui um registro nulo, indicando que há um empregado sem gerente.
-  ->	James S Wallace
-  
-
-_Tabela company departament_
-
-Todos os departamentos possuem um gerente associado, datas de início da gestão e criação do departamento.
+##Etapa 2 – Formatação dos Dados
+Tabela "company department"
+Eliminação das colunas: company.dept_locations, company.employee e company.project;
+Conversão da coluna Dnumber de número para texto, devido à sua natureza enquanto chave.
+Tabela "company dependent"
+Eliminação da coluna: company.employee;
+Substituição dos valores na coluna "Sex": M por "Male" e F por "Female".
+Tabela "company dept_location"
+Eliminação da coluna: company.department;
+Conversão da coluna Dnumber de número para texto, devido à sua natureza enquanto chave.
+Tabela "company employee"
+Eliminação das colunas: company.department, company.dependent, company.employee (Ssn), company.employee (Super_ssn) e company.works_on;
+Conversão da coluna Dno de número para texto, devido à sua natureza enquanto chave;
+Substituição dos valores na coluna "Sex": M por "Male" e F por "Female";
+Fusão das colunas Fname, Minit e Lname, separadas por espaços, numa única coluna "Nome completo".
+Tabela "company project"
+Eliminação das colunas: company.department e company.works_on;
+Conversão das colunas Dnum e Pnumber de número para texto, devido à sua natureza enquanto chave.
+Tabela "company works_on"
+Eliminação das colunas: company.employee e company.project;
+Conversão da coluna Pno de número para texto, devido à sua natureza enquanto chave.
 
 
-_Tabela company project_
+##Etapa 3 – Transformação de Tabelas
+Tabela "company employee"
+A coluna "Super_ssn" contém um registro nulo, indicando um funcionário sem gerente.
 
-Plocation removido, pois possui chave referencial em dept_locations.
+James S Wallace
+Tabela "company department"
+Todos os departamentos possuem um gerente associado, bem como datas de início de gestão e criação do departamento.
 
+Tabela "company project"
+A coluna "Plocation" foi removida, pois possui uma chave referencial em "dept_locations".
 
-_Tabela company works_on_
+Tabela "company works_on"
+As colunas "Pno" e "Essn" foram convertidas de número para texto, uma vez que representam chaves;
+A coluna "Hours" foi formatada como decimal.
 
-Coluna “Pno” e “Essn” formatado de número para texto, pois trata-se de uma chave;
-“Hours” formatado como decimal.
+##Etapa 4 – Criação de Novas Tabelas
+Observação: Todas as operações abaixo foram realizadas utilizando o Power Query.
 
-## Passo 04 – Criando Novas Tabelas
-**Obs.: Todas as funções abaixo foram utilizadas no próprio Power Query.**
+Funcionários / Departamentos
+A mesclagem das consultas "employee" e "department" resultou numa nova tabela "employee" que inclui os nomes dos departamentos associados a cada colaborador.
 
-_Empregados / Departamentos_
+Utilizou-se um "outer left join" entre a tabela "employee" e a chave Dno com a tabela "department" e a chave Dnumber;
+Utilizou-se um "outer left join" na coluna "Super_ssn" para recuperar os nomes completos dos gerentes de cada departamento;
+Por fim, as colunas Ssn, Super_ssn, Dno, company department.Dnumber e company department.Mgr_ssn foram eliminadas.
+Departamentos / Localizações
+A combinação dos nomes dos departamentos com as localizações garante que cada par departamento-localização seja único.
 
-Mesclar consultas employee e departament para criar uma tabela employee com o nome dos departamentos associados aos colaboradores.
-  ->	Foi utilizado um outter left join à tabela employee e a chave Dno com a tabela departament e chave Dnumber;
-  ->	Foi utilizado um outter left Join na coluna Super_ssn para recuperar o nome completo dos gerentes de cada departamento;
-  ->	Por fim, as colunas Ssn, Super_ssn, Dno, company departament.Dnumber, company departament.Mgr_ssn, foram removidas.
-  
-
-_Departamentos / Localização_
-Mescle os nomes de departamentos e localização. Isso fará que cada combinação departamento-local seja único.
-  ->	Foi utilizado um outter left Join à tabela departament e a chave Dnumber com a tabela dept_location e a chave Dnumber;
-  ->	Nas informações recuperadas, foi expandida apenas a informação Dlocation que teve o nome da coluna alterada para Localização;
-  ->	As colunas Dnumber e Mgr_ssn foram apagadas.
-  
- 
-
-
-
-
+Realizou-se um "outer left join" entre a tabela "department" e a chave Dnumber com a tabela "dept_location" e a chave Dnumber;
+Das informações recuperadas, apenas a informação Dlocation foi expandida e a sua coluna foi renomeada para "Localização";
+As colunas Dnumber e Mgr_ssn foram descartadas.
